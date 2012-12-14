@@ -4,7 +4,7 @@ nv-animation
 Overview
 --------
 
-Generic implementation of animation components.
+Generic implementation of building blocks for animation.
 
 
 License
