@@ -412,6 +412,33 @@ public class KeyframeSequence
 
     /**
      * Get an interpolated value at the specified time.
+     *
+     * <p>
+     * This method is an alias of {@link #getValueAt(int, float[], int)
+     * getValueAt}{@code (time, output, 0)}.
+     * </p>
+     * 
+     * @param time
+     *         Time.
+     *
+     * @param output
+     *         A place to store the interpolated value.
+     *
+     * @return
+     *         False if the given time exceeds the duration and
+     *         the repeat mode is off. If the repeat mode is on,
+     *         true is always returned.
+     *
+     * @see #getValue(int, float[], int)
+     */
+    public final boolean getValueAt(int time, float[] output)
+    {
+        return getValueAt(time, output, 0);
+    }
+
+
+    /**
+     * Get an interpolated value at the specified time.
      * The calculation involves the keyframe values and the
      * interpolator.
      *
@@ -480,6 +507,11 @@ public class KeyframeSequence
     private void getValueInRepeatMode(int time, float[] output, int outputIndex)
     {
         int timeToLookUp = time % duration;
+
+        if (timeToLookUp < 0)
+        {
+            timeToLookUp += duration;
+        }
 
         if (timeToLookUp == 0 && time != 0)
         {
@@ -556,6 +588,13 @@ public class KeyframeSequence
 
     private int determineEndIndexInRepeatMode(int index)
     {
+        // If the insertion point is beyond the last keyframe.
+        if (index == keyframeCount)
+        {
+            // Use the first keyframe.
+            return 0;
+        }
+
         // If the time of the next keyframe does not exceed the duration.
         if (getTime(index) <= duration)
         {
@@ -642,7 +681,6 @@ public class KeyframeSequence
 
         // Time of the end keyframe.
         int endTime = getTime(endIndex);
-
         // Time ratio.
         float ratio;
 
@@ -652,7 +690,22 @@ public class KeyframeSequence
         }
         else
         {
-            ratio = (float)(time - endTime) / (float)(duration - endTime + startTime);
+            int numerator;
+
+            if (time < startTime)
+            {
+                // 'time' is in between 0 and 'endTime'.
+                numerator = time;
+            }
+            else
+            {
+                // 'time' is in between 'startTime' and 'duration'.
+                numerator = time - startTime;
+            }
+
+            int denominator = endTime - startTime + duration;
+
+            ratio = (float)numerator / (float)denominator;
         }
 
         // The index in 'values' array from which keyframe values of

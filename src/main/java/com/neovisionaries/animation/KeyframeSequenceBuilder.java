@@ -94,7 +94,7 @@ public class KeyframeSequenceBuilder
      *         Component count has already been set and at least one
      *         keyframe has been added.
      */
-    public KeyframeSequenceBuilder componentCount(int componentCount)
+    public final KeyframeSequenceBuilder componentCount(int componentCount)
     {
         checkComponentCount(componentCount);
 
@@ -106,6 +106,31 @@ public class KeyframeSequenceBuilder
         this.componentCount = componentCount;
 
         return this;
+    }
+
+
+    /**
+     * Add a keyframe.
+     *
+     * <p>
+     * This method is an alias of {@link #keyframe(int, float[], int)
+     * keyframe}<{@code (time, value, (int)0)}.
+     * </p>
+     *
+     * @param time
+     *         Keyframe time.
+     *
+     * @param value
+     *         Components of the keyframe.
+     *
+     * @return
+     *         {@code this} object.
+     *
+     * @see #keyframe(int, float[], int)
+     */
+    public final KeyframeSequenceBuilder keyframe(int time, float... value)
+    {
+        return keyframe(time, value, (int)0);
     }
 
 
@@ -160,7 +185,7 @@ public class KeyframeSequenceBuilder
      *
      * @see KeyframeSequence#setKeyframe(int, int, float[], int)
      */
-    public KeyframeSequenceBuilder keyframe(int time, float[] value, int valueIndex)
+    public final KeyframeSequenceBuilder keyframe(int time, float[] value, int valueIndex)
     {
         // Check if time is not negative.
         if (time < 0)
@@ -222,7 +247,7 @@ public class KeyframeSequenceBuilder
      * @see KeyframeSequence#KeyframeSequence(int, int, Interpolator)
      * @see KeyframeSequence#setInterpolator(Interpolator)
      */
-    public KeyframeSequenceBuilder interpolator(Interpolator interpolator)
+    public final KeyframeSequenceBuilder interpolator(Interpolator interpolator)
     {
         this.interpolator = interpolator;
 
@@ -244,7 +269,7 @@ public class KeyframeSequenceBuilder
      *
      * @see KeyframeSequence#setDuration(int)
      */
-    public KeyframeSequenceBuilder duration(int duration)
+    public final KeyframeSequenceBuilder duration(int duration)
     {
         if (duration <= 0)
         {
@@ -268,7 +293,7 @@ public class KeyframeSequenceBuilder
      *
      * @see KeyframeSequence#setRepeated(boolean)
      */
-    public KeyframeSequenceBuilder repeated(boolean repeated)
+    public final KeyframeSequenceBuilder repeated(boolean repeated)
     {
         this.repeated = repeated;
 
@@ -285,7 +310,7 @@ public class KeyframeSequenceBuilder
      * @throws IllegalStateException
      *         No keyframe has been added to this builder.
      */
-    public KeyframeSequence build()
+    public final KeyframeSequence build()
     {
         // If no keyframe has been added to this builder.
         if (keyframeCount == 0)
