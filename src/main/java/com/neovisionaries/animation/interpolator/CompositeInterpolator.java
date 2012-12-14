@@ -31,17 +31,17 @@ import static com.neovisionaries.animation.interpolator.LinearInterpolator.LINEA
  * </p>
  *
  * <p>
- * When {@link #doInterpolate(float[], float[], int, float, float[]) doInterpolator}
- * method is called, {@link Interpolator#interpolate(float[], float[], int, float, float[])
+ * When {@link #doInterpolate(float[], int, float[], int, int, float, float[], int) doInterpolator}
+ * method is called, {@link Interpolator#interpolate(float[], int, float[], int, int, float, float[], int)
  * interpolator} method of each registered interpolator is executed one by one and
  * the calculated values are accumulated. The logic of the accumulation is implemented
- * in {@link #accumulate(float[], float, float[]) accumulate} method and the method
+ * in {@link #accumulate(float[], float, float[], int) accumulate} method and the method
  * can be overridden if necessary.
  * </p>
  *
  * <p>
  * If no interpolator is registered when {@link
- * #doInterpolate(float[], float[], int, float, float[]) doInterpolator} is called,
+ * #doInterpolate(float[], int, float[], int, int, float, float[], int) doInterpolator} is called,
  * {@code CompositeInterpolator} behaves in the same way as {@link LinearInterpolator}.
  * </p>
  *
@@ -152,12 +152,15 @@ public class CompositeInterpolator extends InterpolatorBase
 
 
     @Override
-    protected final void doInterpolate(float[] from, float[] to, int count, float ratio, float[] output)
+    protected final void doInterpolate(
+            float[] from, int fromIndex, float[] to, int toIndex,
+            int count, float ratio, float[] output, int outputIndex)
     {
         if (entryList == null)
         {
             // No interpolator is registered, so use the default interpolator.
-            DEFAULT_INTERPOLATOR.interpolate(from, to, count, ratio, output);
+            DEFAULT_INTERPOLATOR.interpolate(
+                    from, fromIndex, to, toIndex, count, ratio, output, outputIndex);
 
             // Interpolation was done.
             return;
@@ -182,10 +185,11 @@ public class CompositeInterpolator extends InterpolatorBase
             Arrays.fill(work, 0.0F);
 
             // Let the interpolator interpolate and store the output to 'work'.
-            interpolator.interpolate(from, to, count, ratio, work);
+            interpolator.interpolate(
+                    from, fromIndex, to, toIndex, count, ratio, work, 0);
 
             // Accumulate the interpolated value and update the output array.
-            accumulate(work, weight, output);
+            accumulate(work, weight, output, outputIndex);
         }
     }
 
@@ -201,7 +205,7 @@ public class CompositeInterpolator extends InterpolatorBase
      *
      * for (int i = 0; i < value.length; ++i)
      * {
-     *     output[i] += value[i] * weight;
+     *     output[outputIndex + i] += value[i] * weight;
      * }
      * </pre>
      *
@@ -219,15 +223,19 @@ public class CompositeInterpolator extends InterpolatorBase
      *         by {@link #add(Interpolator, float) add} method.
      *
      * @param output
-     *         The 'output' argument passed to {@link #doInterpolate(float[],
-     *         float[], int, float, float[]) doInterpolate} method.
+     *         The {@code output} argument passed to {@link #doInterpolate(float[],
+     *         int, float[], int, int, float, float[], int) doInterpolate} method.
+     *
+     * @param outputIndex
+     *         The {@code outputIndex} argument passed to {@link #doInterpolate(float[],
+     *         int, float[], int, int, float, float[], int) doInterpolate} method.
      */
-    protected void accumulate(float[] value, float weight, float[] output)
+    protected void accumulate(float[] value, float weight, float[] output, int outputIndex)
     {
         // The default accumulation behavior.
         for (int i = 0; i < value.length; ++i)
         {
-            output[i] += value[i] * weight;
+            output[outputIndex + i] += value[i] * weight;
         }
     }
 
@@ -237,7 +245,7 @@ public class CompositeInterpolator extends InterpolatorBase
      *
      * <p>
      * The way that the weight is used depends on the implementation of
-     * {@link #accumulate(float[], float, float[]) accumulate} method.
+     * {@link #accumulate(float[], float, float[], int) accumulate} method.
      * </p>
      *
      * @param interpolator

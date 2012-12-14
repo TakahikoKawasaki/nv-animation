@@ -118,7 +118,9 @@ public abstract class EasingInterpolator extends InterpolatorBase
      * </ol>
      */
     @Override
-    protected final void doInterpolate(float[] from, float[] to, int count, float ratio, float[] output)
+    protected final void doInterpolate(
+            float[] from, int fromIndex, float[] to, int toIndex,
+            int count, float ratio, float[] output, int outputIndex)
     {
         // EasingMode.IN
         if (easingMode == EasingMode.IN)
@@ -143,7 +145,7 @@ public abstract class EasingInterpolator extends InterpolatorBase
 
         for (int i = 0; i < count; ++i)
         {
-            output[i] = from[i] * (1 - ratio) + to[i] * ratio;
+            output[outputIndex + i] = from[fromIndex + i] * (1 - ratio) + to[toIndex + i] * ratio;
         }
     }
 
@@ -175,10 +177,10 @@ public abstract class EasingInterpolator extends InterpolatorBase
      * Modify the value of time ratio.
      *
      * <p>
-     * This method is called from {@link #doInterpolate(float[], float[],
-     * int, float, float[]) EasingInterpolator.doInterpolate} method.
-     * See the description of {@code EasingInterpolator.doInterpolate}
-     * for details.
+     * This method is called from {@link #doInterpolate(float[], int,
+     * float[], int, int, float, float[], int)
+     * EasingInterpolator.doInterpolate} method. See the description
+     * of {@code EasingInterpolator.doInterpolate} for details.
      * </p>
      *
      * @param ratio
@@ -187,7 +189,7 @@ public abstract class EasingInterpolator extends InterpolatorBase
      * @return
      *         Modified time ratio.
      *
-     * @see #doInterpolate(float[], float[], int, float, float[])
+     * @see #doInterpolate(float[], int, float[], int, int, float, float[], int)
      */
     protected abstract float doEasing(float ratio);
 }

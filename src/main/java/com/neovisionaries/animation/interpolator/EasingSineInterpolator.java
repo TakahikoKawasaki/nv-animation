@@ -23,7 +23,6 @@ package com.neovisionaries.animation.interpolator;
  */
 public class EasingSineInterpolator extends EasingInterpolator
 {
-
     public EasingSineInterpolator()
     {
         super();

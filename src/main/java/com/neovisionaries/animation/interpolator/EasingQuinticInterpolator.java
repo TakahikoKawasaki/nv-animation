@@ -23,7 +23,6 @@ package com.neovisionaries.animation.interpolator;
  */
 public class EasingQuinticInterpolator extends EasingInterpolator
 {
-
     public EasingQuinticInterpolator()
     {
         super();

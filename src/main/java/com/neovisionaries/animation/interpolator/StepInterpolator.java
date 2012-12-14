@@ -36,8 +36,10 @@ public class StepInterpolator extends InterpolatorBase
 
 
     @Override
-    protected final void doInterpolate(float[] from, float[] to, int count, float ratio, float[] output)
+    protected final void doInterpolate(
+            float[] from, int fromIndex, float[] to, int toIndex,
+            int count, float ratio, float[] output, int outputIndex)
     {
-        System.arraycopy(from, 0, output, 0, count);
+        System.arraycopy(from, fromIndex, output, outputIndex, count);
     }
 }

@@ -39,11 +39,13 @@ public class LinearInterpolator extends InterpolatorBase
 
 
     @Override
-    protected final void doInterpolate(float[] from, float[] to, int count, float ratio, float[] output)
+    protected final void doInterpolate(
+            float[] from, int fromIndex, float[] to, int toIndex,
+            int count, float ratio, float[] output, int outputIndex)
     {
         for (int i = 0; i < count; ++i)
         {
-            output[i] = from[i] * (1 - ratio) + to[i] * ratio;
+            output[outputIndex + i] = from[fromIndex + i] * (1 - ratio) + to[toIndex + i] * ratio;
         }
     }
 }

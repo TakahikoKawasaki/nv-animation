@@ -55,16 +55,27 @@ public interface Interpolator
      *
      * @param from
      *         The value at the start point of a given timespan.
-     *         The length of the array must be equal to or greater than
-     *         the component count ({@code count}).
+     *         The length of the array minus {@code fromIndex}
+     *         must be equal to or greater than the component
+     *         count ({@code count}).
      *
+     * @param fromIndex
+     *         The index in the {@code from} array from which
+     *         the start value starts. Must not be negative.
+     * 
      * @param to
      *         The value at the end point of a given timespan.
-     *         The length of the array must be equal to or greater than
-     *         the component count ({@code count}).
+     *         The length of the array minus {@code toIndex}
+     *         must be equal to or greater than the component
+     *         count ({@code count}).
+     *
+     * @param toIndex
+     *         The index in the {@code to} array from which
+     *         the end value starts. Must not be negative.
      *
      * @param count
-     *         The component count of {@code from[]} and {@code to[]}.
+     *         The component count of the start value {@code
+     *         from[]} and the end value {@code to[]}.
      *         The value must be equal to or greater than 1.
      *
      * @param ratio
@@ -72,8 +83,14 @@ public interface Interpolator
      *
      * @param output
      *         A place into which the calculated value is put.
-     *         The length of the array must be equal to or greater than
-     *         the component count ({@code count}).
+     *         The length of the array must be equal to or
+     *         greater than the component count ({@code count}).
+     *
+     * @param outputIndex
+     *         The index in the {@code output} array at which
+     *         the calculated value should be written.
      */
-    void interpolate(float[] from, float[] to, int count, float ratio, float[] output);
+    void interpolate(
+            float[] from, int fromIndex, float[] to, int toIndex,
+            int count, float ratio, float[] output, int outputIndex);
 }

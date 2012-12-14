@@ -20,8 +20,7 @@ package com.neovisionaries.animation.interpolator;
  * SLERP interpolator.
  *
  * <p>
- * Note that the component count of {@code from[]}, {@code to[]} and
- * {@code output[]} must be 4 or greater.
+ * Note that the component count must be 4 or greater.
  * </p>
  *
  * @author Takahiko Kawasaki
@@ -36,7 +35,9 @@ public class SlerpInterpolator extends InterpolatorBase
 
 
     @Override
-    protected final void doInterpolate(float[] from, float[] to, int count, float ratio, float[] output)
+    protected final void doInterpolate(
+            float[] from, int fromIndex, float[] to, int toIndex,
+            int count, float ratio, float[] output, int outputIndex)
     {
         if (count < 4)
         {
@@ -48,14 +49,14 @@ public class SlerpInterpolator extends InterpolatorBase
         final int zIndex = 2;
         final int wIndex = 3;
 
-        float x0 = from[xIndex];
-        float y0 = from[yIndex];
-        float z0 = from[zIndex];
-        float w0 = from[wIndex];
-        float x1 = to[xIndex];
-        float y1 = to[yIndex];
-        float z1 = to[zIndex];
-        float w1 = to[wIndex];
+        float x0 = from[fromIndex + xIndex];
+        float y0 = from[fromIndex + yIndex];
+        float z0 = from[fromIndex + zIndex];
+        float w0 = from[fromIndex + wIndex];
+        float x1 = to[toIndex + xIndex];
+        float y1 = to[toIndex + yIndex];
+        float z1 = to[toIndex + zIndex];
+        float w1 = to[toIndex + wIndex];
 
         float cosOmega = w0 * w1 + x0 * x1 + y0 * y1 + z0 * z1;
 
@@ -86,9 +87,9 @@ public class SlerpInterpolator extends InterpolatorBase
             k1 = (float)(Math.sin(ratio * omega) * oneOverSinOmega);
         }
 
-        output[wIndex] = w0 * k0 + w1 * k1;
-        output[xIndex] = x0 * k0 + x1 * k1;
-        output[yIndex] = y0 * k0 + y1 * k1;
-        output[zIndex] = z0 * k0 + z1 * k1;
+        output[outputIndex + wIndex] = w0 * k0 + w1 * k1;
+        output[outputIndex + xIndex] = x0 * k0 + x1 * k1;
+        output[outputIndex + yIndex] = y0 * k0 + y1 * k1;
+        output[outputIndex + zIndex] = z0 * k0 + z1 * k1;
     }
 }
