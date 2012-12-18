@@ -486,8 +486,7 @@ public class KeyframeSequence
     public final boolean getValueAt(int time, float[] output, int outputIndex)
     {
         checkArray("output", output, outputIndex);
-        validateDuration();
-        validateInterpolator();
+        verify(true);
 
         if (isRepeated())
         {
@@ -767,26 +766,82 @@ public class KeyframeSequence
     }
 
 
-    private void validateDuration()
+    /**
+     * Verify if this keyframe sequence is ready for performing interpolation.
+     * If this method returns false, {@link #getValue(int, float[], int)}
+     * will throws an exception.
+     *
+     * @return
+     *         If duration is not set or if interpolator is not set,
+     *         false is returned. Otherwise, true is returned.
+     */
+    public final boolean verify()
+    {
+        return verify(false);
+    }
+
+
+    private boolean verify(boolean throwsException)
+    {
+        if (verifyDuration(throwsException) == false)
+        {
+            return false;
+        }
+
+        if (verifyInterpolator(throwsException) == false)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private boolean verifyDuration(boolean throwsException)
     {
         if (duration <= 0)
         {
-            throw new IllegalStateException("Duration is not set");
+            if (throwsException)
+            {
+                throw new IllegalStateException("Duration is not set");
+            }
+            else
+            {
+                return false;
+            }
         }
 
         if (duration < getTime(0))
         {
-            throw new IllegalStateException("No keyframe within the duration (" + duration + ")");
+            if (throwsException)
+            {
+                throw new IllegalStateException("No keyframe within the duration (" + duration + ")");
+            }
+            else
+            {
+                return false;
+            }
         }
+
+        return true;
     }
 
 
-    private void validateInterpolator()
+    private boolean verifyInterpolator(boolean throwsException)
     {
         if (interpolator == null)
         {
-            throw new IllegalStateException("Interpolator is not set");
+            if (throwsException)
+            {
+                throw new IllegalStateException("Interpolator is not set");
+            }
+            else
+            {
+                return false;
+            }
         }
+
+        return true;
     }
 
 
