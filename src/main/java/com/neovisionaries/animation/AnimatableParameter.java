@@ -17,36 +17,36 @@ package com.neovisionaries.animation;
 
 
 /**
- * Animatable object. Basic implementation of {@link Animatable}.
+ * Animatable parameter. Basic implementation of {@link Animatable}.
  *
  * @author Takahiko Kawasaki
  */
-public class AnimatableObject implements Animatable
+public class AnimatableParameter implements Animatable
 {
     /**
-     * The value of this animatable object.
+     * The value of this animatable parameter.
      */
     private final float[] value;
 
 
     /**
-     * KeyframeSequence used to animate this object.
+     * KeyframeSequence used to animate this parameter.
      */
     private KeyframeSequence keyframeSequence;
 
 
     /**
      * Constructor with component count. This constructor just calls
-     * {@link #AnimatableObject(int, KeyframeSequence) this}{@code
+     * {@link #AnimatableParameter(int, KeyframeSequence) this}{@code
      * (componentCount, null)}.
      *
      * @param componentCount
-     *         Component count of the value of this object.
+     *         Component count of the value of this parameter.
      *
      * @throws IllegalArgumentException
      *         {@code componentCount} is less than 1.
      */
-    public AnimatableObject(int componentCount)
+    public AnimatableParameter(int componentCount)
     {
         this(componentCount, null);
     }
@@ -56,15 +56,15 @@ public class AnimatableObject implements Animatable
      * Constructor with component count and keyframe sequence.
      *
      * @param componentCount
-     *         Component count of the value of this object.
+     *         Component count of the value of this parameter.
      *
      * @param keyframeSequence
-     *         Keyframe sequence used to animate this object.
+     *         Keyframe sequence used to animate this parameter.
      *
      * @throws IllegalArgumentException
      *         {@code componentCount} is less than 1.
      */
-    public AnimatableObject(int componentCount, KeyframeSequence keyframeSequence)
+    public AnimatableParameter(int componentCount, KeyframeSequence keyframeSequence)
     {
         if (componentCount < 1)
         {
@@ -77,17 +77,18 @@ public class AnimatableObject implements Animatable
 
 
     /**
-     * Get the value of this object. The reference to the internal array
+     * Get the value of this parameter. The reference to the internal array
      * is returned, so changing the elements in the returned array means
-     * changing the value of this object.
+     * changing the value of this parameter directly.
      *
      * <p>
-     * If the component count of this object is 1, you can get the single
-     * value by {@code getValue()[0]}.
+     * For example, you can get the value of the first element by {@code
+     * getValue()[0]}, which is equivalent to {@link #getElementValue(int)
+     * getElementValue}{@code (0)}.
      * </p>
      *
      * @return
-     *         The value of this object.
+     *         The value of this parameter.
      */
     public final float[] getValue()
     {
@@ -96,7 +97,43 @@ public class AnimatableObject implements Animatable
 
 
     /**
-     * Get the keyframe sequence used to animate this object.
+     * Get the value of the element at the specified index.
+     *
+     * @param index
+     *         The index of the target element.
+     *
+     * @return
+     *         The value of the element at the specified index.
+     *
+     * @throws ArrayIndexOutOfBoundsException
+     *         The given index is out of the valid range.
+     */
+    public final float getElementValue(int index)
+    {
+        return value[index];
+    }
+
+
+    /**
+     * Set a value to the element at the specified index.
+     *
+     * @param index
+     *         The index of the target element.
+     *
+     * @param elementValue
+     *         A new value of the target element.
+     *
+     * @throws ArrayIndexOutOfBoundsException
+     *         The given index is out of the valid range.
+     */
+    public final void setElementValue(int index, float elementValue)
+    {
+        value[index] = elementValue;
+    }
+
+
+    /**
+     * Get the keyframe sequence used to animate this parameter.
      *
      * @return
      *         Keyframe sequence.
@@ -108,7 +145,7 @@ public class AnimatableObject implements Animatable
 
 
     /**
-     * Set the keyframe sequence used to animate this object.
+     * Set the keyframe sequence used to animate this parameter.
      *
      * @param keyframeSequence
      *         Keyframe sequence.
@@ -120,7 +157,7 @@ public class AnimatableObject implements Animatable
 
 
     /**
-     * Animate this object. If keyframe sequence is not set or
+     * Animate this parameter. If keyframe sequence is not set or
      * {@link KeyframeSequence#verify() verify()} method of the
      * {@link KeyframeSequence} instance returns false, nothing
      * is performed and this method returns false.
