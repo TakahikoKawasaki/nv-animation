@@ -16,6 +16,9 @@
 package com.neovisionaries.animation;
 
 
+import com.neovisionaries.animation.interpolator.Interpolator;
+
+
 /**
  * Animatable parameter. Basic implementation of {@link Animatable}.
  *
@@ -33,6 +36,12 @@ public class AnimatableParameter implements Animatable
      * KeyframeSequence used to animate this parameter.
      */
     private KeyframeSequence keyframeSequence;
+
+
+    /**
+     * Interpolator to interpolate keyframe values.
+     */
+    private Interpolator interpolator;
 
 
     /**
@@ -54,6 +63,9 @@ public class AnimatableParameter implements Animatable
 
     /**
      * Constructor with component count and keyframe sequence.
+     * This constructor just calls {@link #AnimatableParameter(int,
+     * KeyframeSequence, Interpolator) this}{@code componentCount,
+     * keyframeSequence, null)}.
      *
      * @param componentCount
      *         Component count of the value of this parameter.
@@ -66,6 +78,27 @@ public class AnimatableParameter implements Animatable
      */
     public AnimatableParameter(int componentCount, KeyframeSequence keyframeSequence)
     {
+        this(componentCount, keyframeSequence, null);
+    }
+
+
+    /**
+     * Constructor with component count, keyframe sequence and interpolator.
+     *
+     * @param componentCount
+     *         Component count of the value of this parameter.
+     *
+     * @param keyframeSequence
+     *         Keyframe sequence used to animate this parameter.
+     *
+     * @param interpolator
+     *         Interpolator to interpolate keyframe values.
+     *
+     * @throws IllegalArgumentException
+     *         {@code componentCount} is less than 1.
+     */
+    public AnimatableParameter(int componentCount, KeyframeSequence keyframeSequence, Interpolator interpolator)
+    {
         if (componentCount < 1)
         {
             throw new IllegalArgumentException("componentCount < 1");
@@ -73,18 +106,19 @@ public class AnimatableParameter implements Animatable
 
         this.value = new float[componentCount];
         this.keyframeSequence = keyframeSequence;
+        this.interpolator = interpolator;
     }
 
 
     /**
      * Get the value of this parameter. The reference to the internal array
-     * is returned, so changing the elements in the returned array means
+     * is returned, so changing the components in the returned array means
      * changing the value of this parameter directly.
      *
      * <p>
-     * For example, you can get the value of the first element by {@code
-     * getValue()[0]}, which is equivalent to {@link #getElementValue(int)
-     * getElementValue}{@code (0)}.
+     * For example, you can get the value of the first component by {@code
+     * getValue()[0]}, which is equivalent to {@link #getComponentValue(int)
+     * getComponentValue}{@code (0)}.
      * </p>
      *
      * @return
@@ -97,38 +131,38 @@ public class AnimatableParameter implements Animatable
 
 
     /**
-     * Get the value of the element at the specified index.
+     * Get the value of the component at the specified index.
      *
-     * @param index
-     *         The index of the target element.
+     * @param componentIndex
+     *         The index of the target component.
      *
      * @return
-     *         The value of the element at the specified index.
+     *         The value of the component at the specified index.
      *
      * @throws ArrayIndexOutOfBoundsException
      *         The given index is out of the valid range.
      */
-    public final float getElementValue(int index)
+    public final float getComponentValue(int componentIndex)
     {
-        return value[index];
+        return value[componentIndex];
     }
 
 
     /**
-     * Set a value to the element at the specified index.
+     * Set a value to the component at the specified index.
      *
-     * @param index
-     *         The index of the target element.
+     * @param componentIndex
+     *         The index of the target component.
      *
-     * @param elementValue
-     *         A new value of the target element.
+     * @param componentValue
+     *         A new value of the target component.
      *
      * @throws ArrayIndexOutOfBoundsException
      *         The given index is out of the valid range.
      */
-    public final void setElementValue(int index, float elementValue)
+    public final void setComponentValue(int componentIndex, float componentValue)
     {
-        value[index] = elementValue;
+        value[componentIndex] = componentValue;
     }
 
 
@@ -157,10 +191,35 @@ public class AnimatableParameter implements Animatable
 
 
     /**
+     * Get the interpolator to interpolate keyframe values.
+     *
+     * @return
+     *         Interpolator.
+     */
+    public final Interpolator getInterpolator()
+    {
+        return interpolator;
+    }
+
+
+    /**
+     * Set the interpolator to interpolate keyframe values.
+     *
+     * @param interpolator
+     *         Interpolator.
+     */
+    public final void setInterpolator(Interpolator interpolator)
+    {
+        this.interpolator = interpolator;
+    }
+
+
+    /**
      * Animate this parameter. If keyframe sequence is not set or
      * {@link KeyframeSequence#verify() verify()} method of the
-     * {@link KeyframeSequence} instance returns false, nothing
-     * is performed and this method returns false.
+     * {@link KeyframeSequence} instance returns false, of no
+     * interpolator is set, nothing is performed and this method
+     * returns false.
      */
     public final boolean animate(int time)
     {
@@ -169,7 +228,7 @@ public class AnimatableParameter implements Animatable
             return false;
         }
 
-        return keyframeSequence.getValueAt(time, value);
+        return keyframeSequence.getValueAt(time, interpolator, value);
     }
 
 
@@ -180,8 +239,8 @@ public class AnimatableParameter implements Animatable
      *         If keyframe sequence is not set or {@link
      *         KeyframeSequence#verify() verify()} method of
      *         the {@link KeyframeSequence} instance returns
-     *         false, this method returns false. Otherwise,
-     *         this method returns true.
+     *         false, or no interpolator is set, this method
+     *         returns false. Otherwise, this method returns true.
      */
     private boolean isAnimatable()
     {
@@ -191,6 +250,11 @@ public class AnimatableParameter implements Animatable
         }
 
         if (keyframeSequence.verify() == false)
+        {
+            return false;
+        }
+
+        if (interpolator == null)
         {
             return false;
         }

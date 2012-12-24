@@ -27,13 +27,12 @@ import com.neovisionaries.animation.interpolator.Interpolator;
  *
  * @author Takahiko Kawasaki
  */
-public class KeyframeSequence
+public class KeyframeSequence implements Cloneable
 {
     private final int keyframeCount;
     private final int componentCount;
-    private final float[] values;
-    private final int[] times;
-    private Interpolator interpolator;
+    private float[] values;
+    private int[] times;
     private int duration;
     private boolean repeated;
 
@@ -55,30 +54,6 @@ public class KeyframeSequence
      */
     public KeyframeSequence(int keyframeCount, int componentCount)
     {
-        this(keyframeCount, componentCount, null);
-    }
-
-
-    /**
-     * A constructor.
-     *
-     * @param keyframeCount
-     *         The number of keyframes.
-     *
-     * @param componentCount
-     *         The number of components of each keyframe.
-     *
-     * @param interpolator
-     *         An interpolator used to interpolate keyframe values.
-     *
-     * @throws IllegalArgumentException
-     * <ul>
-     * <li>{@code keyframeCount} is less than 1.</li>
-     * <li>{@code componentCount} is less than 1.</li>
-     * </ul>
-     */
-    public KeyframeSequence(int keyframeCount, int componentCount, Interpolator interpolator)
-    {
         if (keyframeCount < 1)
         {
             throw new IllegalArgumentException("keyframeCount < 1");
@@ -91,10 +66,28 @@ public class KeyframeSequence
 
         this.keyframeCount = keyframeCount;
         this.componentCount = componentCount;
-        this.interpolator = interpolator;
 
         values = new float[keyframeCount * componentCount];
         times = new int[keyframeCount];
+    }
+
+
+    @Override
+    public KeyframeSequence clone()
+    {
+        try
+        {
+            KeyframeSequence cloned = (KeyframeSequence)super.clone();
+
+            cloned.values = this.values.clone();
+            cloned.times = this.times.clone();
+
+            return cloned;
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new Error("CloneNotSupportedException was detected.", e);
+        }
     }
 
 
@@ -127,21 +120,21 @@ public class KeyframeSequence
      *
      * <p>
      * This method is an alias of {@link #getKeyframe(int, float[], int)
-     * getKeyframe}{@code (index, value, 0)}.
+     * getKeyframe}{@code (keyframeIndex, value, 0)}.
      * </p>
      *
      * @see #getKeyframe(int, float[], int)
      */
-    public final int getKeyframe(int index, float[] value)
+    public final int getKeyframe(int keyframeIndex, float[] value)
     {
-        return getKeyframe(index, value, 0);
+        return getKeyframe(keyframeIndex, value, 0);
     }
 
 
     /**
      * Get the keyframe at the specified index.
      *
-     * @param index
+     * @param keyframeIndex
      *         A keyframe index.
      *
      * @param value
@@ -156,8 +149,8 @@ public class KeyframeSequence
      *
      * @throws IndexOutOfBoundsException
      * <ul>
-     * <li>{@code index} is less than 0.</li>
-     * <li>{@code index} is equal to or greater than the number of keyframes.</li>
+     * <li>{@code keyframeIndex} is less than 0.</li>
+     * <li>{@code keyframeIndex} is equal to or greater than the number of keyframes.</li>
      * <li>{@code valueIndex} is less than 0.</li>
      * </ul>
      *
@@ -168,14 +161,14 @@ public class KeyframeSequence
      *     the number of components of each keyframe.</li>
      * </ul>
      */
-    public final int getKeyframe(int index, float[] value, int valueIndex)
+    public final int getKeyframe(int keyframeIndex, float[] value, int valueIndex)
     {
-        checkIndex(index);
+        checkKeyframeIndex(keyframeIndex);
         checkArray("value", value, valueIndex);
 
-        getValue(index, value, valueIndex);
+        getValue(keyframeIndex, value, valueIndex);
 
-        return getTime(index);
+        return getTime(keyframeIndex);
     }
 
 
@@ -184,14 +177,14 @@ public class KeyframeSequence
      *
      * <p>
      * This method is an alias of {@link #setKeyframe(int, int, float[], int)
-     * setKeyframe}{@code (index, time, value, 0)}.
+     * setKeyframe}{@code (keyframeIndex, time, value, 0)}.
      * </p>
      *
      * @see #setKeyframe(int, int, float[], int)
      */
-    public final KeyframeSequence setKeyframe(int index, int time, float[] value)
+    public final KeyframeSequence setKeyframe(int keyframeIndex, int time, float[] value)
     {
-        return setKeyframe(index, time, value, 0);
+        return setKeyframe(keyframeIndex, time, value, 0);
     }
 
 
@@ -206,7 +199,7 @@ public class KeyframeSequence
      * 1500.
      * </p>
      *
-     * @param index
+     * @param keyframeIndex
      *         A keyframe index.
      *
      * @param time
@@ -228,8 +221,8 @@ public class KeyframeSequence
      *
      * @throws IndexOutOfBoundsException
      * <ul>
-     * <li>{@code index} is less than 0.</li>
-     * <li>{@code index} is equal to or greater than the number of keyframes.</li>
+     * <li>{@code keyframeIndex} is less than 0.</li>
+     * <li>{@code keyframeIndex} is equal to or greater than the number of keyframes.</li>
      * <li>{@code valueIndex} is less than 0.</li>
      * </ul>
      *
@@ -241,14 +234,14 @@ public class KeyframeSequence
      *     each keyframe.</li>
      * </ul>
      */
-    public final KeyframeSequence setKeyframe(int index, int time, float[] value, int valueIndex)
+    public final KeyframeSequence setKeyframe(int keyframeIndex, int time, float[] value, int valueIndex)
     {
-        checkIndex(index);
+        checkKeyframeIndex(keyframeIndex);
         checkTime(time);
         checkArray("value", value, valueIndex);
 
-        setTime(index, time);
-        setValue(index, value, valueIndex);
+        setTime(keyframeIndex, time);
+        setValue(keyframeIndex, value, valueIndex);
 
         return this;
     }
@@ -257,7 +250,7 @@ public class KeyframeSequence
     /**
      * Get the keyframe time of the keyframe at the specified index.
      *
-     * @param index
+     * @param keyframeIndex
      *         A keyframe index.
      *
      * @return
@@ -265,15 +258,15 @@ public class KeyframeSequence
      *
      * @throws IndexOutOfBoundsException
      * <ul>
-     * <li>{@code index} is less than 0.</li>
-     * <li>{@code index} is equal to or greater than the number of keyframes.</li>
+     * <li>{@code keyframeIndex} is less than 0.</li>
+     * <li>{@code keyframeIndex} is equal to or greater than the number of keyframes.</li>
      * </ul>
      */
-    public final int getKeyframeTime(int index)
+    public final int getKeyframeTime(int keyframeIndex)
     {
-        checkIndex(index);
+        checkKeyframeIndex(keyframeIndex);
 
-        return getTime(index);
+        return getTime(keyframeIndex);
     }
 
 
@@ -288,7 +281,7 @@ public class KeyframeSequence
      * 1500.
      * </p>
      *
-     * @param index
+     * @param keyframeIndex
      *         A keyframe index.
      *
      * @param time
@@ -303,48 +296,54 @@ public class KeyframeSequence
      *
      * @throws IndexOutOfBoundsException
      * <ul>
-     * <li>{@code index} is less than 0.</li>
-     * <li>{@code index} is equal to or greater than the number of keyframes.</li>
+     * <li>{@code keyframeIndex} is less than 0.</li>
+     * <li>{@code keyframeIndex} is equal to or greater than the number of keyframes.</li>
      * </ul>
      *
      * @throws IllegalArgumentException
      *         {@code time} is less than 0.
      */
-    public final KeyframeSequence setKeyframeTime(int index, int time)
+    public final KeyframeSequence setKeyframeTime(int keyframeIndex, int time)
     {
-        checkIndex(index);
+        checkKeyframeIndex(keyframeIndex);
         checkTime(time);
 
-        setTime(index, time);
+        setTime(keyframeIndex, time);
 
         return this;
     }
 
 
-    /**
-     * Get the interpolator.
-     *
-     * @return
-     *         The interpolator.
-     */
-    public final Interpolator getInterpolator()
+    public final KeyframeSequence setKeyframeValue(int keyframeIndex, float[] value)
     {
-        return interpolator;
+        return setKeyframeValue(keyframeIndex, value, 0);
     }
 
 
-    /**
-     * Set the interpolator used to interpolate keyframe values.
-     *
-     * @param interpolator
-     *         An interpolator.
-     *
-     * @return
-     *         {@code this} object.
-     */
-    public final KeyframeSequence setInterpolator(Interpolator interpolator)
+    public final KeyframeSequence setKeyframeValue(int keyframeIndex, float[] value, int valueIndex)
     {
-        this.interpolator = interpolator;
+        checkKeyframeIndex(keyframeIndex);
+        checkArray("value", value, valueIndex);
+        setValue(keyframeIndex, value, valueIndex);
+
+        return this;
+    }
+
+
+    public final float getKeyframeComponentValue(int keyframeIndex, int componentIndex)
+    {
+        checkKeyframeIndex(keyframeIndex);
+        checkComonentIndex(componentIndex);
+
+        return getComponentValue(keyframeIndex, componentIndex);
+    }
+
+
+    public final KeyframeSequence setKeyframeComponentValue(int keyframeIndex, int componentIndex, float componentValue)
+    {
+        checkKeyframeIndex(keyframeIndex);
+        checkComonentIndex(componentIndex);
+        setComponentValue(keyframeIndex, componentIndex, componentValue);
 
         return this;
     }
@@ -414,12 +413,15 @@ public class KeyframeSequence
      * Get an interpolated value at the specified time.
      *
      * <p>
-     * This method is an alias of {@link #getValueAt(int, float[], int)
-     * getValueAt}{@code (time, output, 0)}.
+     * This method is an alias of {@link #getValueAt(int, Interpolator,
+     * float[], int) getValueAt}{@code (time, interpolator, output, 0)}.
      * </p>
      * 
      * @param time
      *         Time.
+     *
+     * @param interpolator
+     *         An interpolator to interpolate keyframe values.
      *
      * @param output
      *         A place to store the interpolated value.
@@ -429,11 +431,11 @@ public class KeyframeSequence
      *         the repeat mode is off. If the repeat mode is on,
      *         true is always returned.
      *
-     * @see #getValue(int, float[], int)
+     * @see #getValueAt(int, Interpolator, float[], int)
      */
-    public final boolean getValueAt(int time, float[] output)
+    public final boolean getValueAt(int time, Interpolator interpolator, float[] output)
     {
-        return getValueAt(time, output, 0);
+        return getValueAt(time, interpolator, output, 0);
     }
 
 
@@ -449,6 +451,9 @@ public class KeyframeSequence
      *
      * @param time
      *         A time. The unit is application-dependent.
+     *
+     * @param interpolator
+     *         An interpolator to interpolate keyframe values.
      *
      * @param output
      *         A place to store the interpolated value.
@@ -473,6 +478,7 @@ public class KeyframeSequence
      *
      * @throws IndexOutOfBoundsException
      * <ul>
+     * <li>{@code interpolator} is null.</li>
      * <li>{@code outputIndex} is less than 0.</li>
      * </ul>
      *
@@ -480,30 +486,30 @@ public class KeyframeSequence
      * <ul>
      * <li>Duration is not set.</li>
      * <li>No keyframe within the duration.</li>
-     * <li>Interpolator is not set.</li>
      * </ul>
      */
-    public final boolean getValueAt(int time, float[] output, int outputIndex)
+    public final boolean getValueAt(int time, Interpolator interpolator, float[] output, int outputIndex)
     {
+        checkInterpolator(interpolator);
         checkArray("output", output, outputIndex);
         verify(true);
 
         if (isRepeated())
         {
-            getValueInRepeatMode(time, output, outputIndex);
+            getValueInRepeatMode(time, interpolator, output, outputIndex);
 
             return true;
         }
         else
         {
-            getValueInConstantMode(time, output, outputIndex);
+            getValueInConstantMode(time, interpolator, output, outputIndex);
 
             return (duration < time);
         }
     }
 
 
-    private void getValueInRepeatMode(int time, float[] output, int outputIndex)
+    private void getValueInRepeatMode(int time, Interpolator interpolator, float[] output, int outputIndex)
     {
         int timeToLookUp = time % duration;
 
@@ -547,7 +553,7 @@ public class KeyframeSequence
         int endIndex = determineEndIndexInRepeatMode(index);
 
         // Let the interpolator compute the interpolated value.
-        getInterpolatedValue(startIndex, endIndex, timeToLookUp, output, outputIndex);
+        getInterpolatedValue(startIndex, endIndex, timeToLookUp, interpolator, output, outputIndex);
     }
 
 
@@ -606,7 +612,7 @@ public class KeyframeSequence
     }
 
 
-    private void getValueInConstantMode(int time, float[] output, int outputIndex)
+    private void getValueInConstantMode(int time, Interpolator interpolator, float[] output, int outputIndex)
     {
         // If the time is less than or equal to the time
         // of the first keyframe.
@@ -669,11 +675,11 @@ public class KeyframeSequence
         }
 
         // Let the interpolator compute the interpolated value.
-        getInterpolatedValue(index - 1, index, timeToLookUp, output, outputIndex);
+        getInterpolatedValue(index - 1, index, timeToLookUp, interpolator, output, outputIndex);
     }
 
 
-    private void getInterpolatedValue(int startIndex, int endIndex, int time, float[] output, int outputIndex)
+    private void getInterpolatedValue(int startIndex, int endIndex, int time, Interpolator interpolator, float[] output, int outputIndex)
     {
         // Time of the start keyframe.
         int startTime = getTime(startIndex);
@@ -720,11 +726,20 @@ public class KeyframeSequence
     }
 
 
-    private void checkIndex(int index)
+    private void checkKeyframeIndex(int keyframeIndex)
     {
-        if (index < 0 || keyframeCount <= index)
+        if (keyframeIndex < 0 || keyframeCount <= keyframeIndex)
         {
-            throw new IndexOutOfBoundsException("index is out of range");
+            throw new IndexOutOfBoundsException("keyframeIndex is out of range");
+        }
+    }
+
+
+    private void checkComonentIndex(int componentIndex)
+    {
+        if (componentIndex < 0 || componentCount <= componentIndex)
+        {
+            throw new IndexOutOfBoundsException("componentIndex is out of range");
         }
     }
 
@@ -734,6 +749,15 @@ public class KeyframeSequence
         if (time < 0)
         {
             throw new IllegalArgumentException("time < 0");
+        }
+    }
+
+
+    private void checkInterpolator(Interpolator interpolator)
+    {
+        if (interpolator == null)
+        {
+            throw new IllegalArgumentException("interpolator is null");
         }
     }
 
@@ -768,12 +792,12 @@ public class KeyframeSequence
 
     /**
      * Verify if this keyframe sequence is ready for performing interpolation.
-     * If this method returns false, {@link #getValue(int, float[], int)}
-     * will throws an exception.
+     * If this method returns false, {@link #getValueAt(int, Interpolator,
+     * float[], int)} will throws an exception.
      *
      * @return
-     *         If duration is not set or if interpolator is not set,
-     *         false is returned. Otherwise, true is returned.
+     *         If duration is not set, false is returned.
+     *         Otherwise, true is returned.
      */
     public final boolean verify()
     {
@@ -784,11 +808,6 @@ public class KeyframeSequence
     private boolean verify(boolean throwsException)
     {
         if (verifyDuration(throwsException) == false)
-        {
-            return false;
-        }
-
-        if (verifyInterpolator(throwsException) == false)
         {
             return false;
         }
@@ -827,94 +846,88 @@ public class KeyframeSequence
     }
 
 
-    private boolean verifyInterpolator(boolean throwsException)
+    private int getTime(int keyframeIndex)
     {
-        if (interpolator == null)
-        {
-            if (throwsException)
-            {
-                throw new IllegalStateException("Interpolator is not set");
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return times[keyframeIndex];
     }
 
 
-    private int getTime(int index)
+    private void setTime(int keyframeIndex, int time)
     {
-        return times[index];
+        times[keyframeIndex] = time;
     }
 
 
-    private void setTime(int index, int time)
+    private void getValue(int keyframeIndex, float[] value, int valueIndex)
     {
-        times[index] = time;
+        System.arraycopy(values, keyframeIndex * componentCount, value, valueIndex, componentCount);
     }
 
 
-    private void getValue(int index, float[] value, int valueIndex)
+    private void setValue(int keyframeIndex, float[] value, int valueIndex)
     {
-        System.arraycopy(values, index * componentCount, value, valueIndex, componentCount);
+        System.arraycopy(value, valueIndex, values, keyframeIndex * componentCount, componentCount);
     }
 
 
-    private void setValue(int index, float[] value, int valueIndex)
+    private float getComponentValue(int keyframeIndex, int componentIndex)
     {
-        System.arraycopy(value, valueIndex, values, index * componentCount, componentCount);
+        return values[keyframeIndex * componentCount + componentIndex];
     }
 
 
-    private int findFirstAtSameTime(int index)
+    private void setComponentValue(int keyframeIndex, int componentIndex, float componentValue)
     {
-        int time = getTime(index);
+        values[keyframeIndex * componentCount + componentIndex] = componentValue;
+    }
+
+
+    private int findFirstAtSameTime(int keyframeIndex)
+    {
+        int time = getTime(keyframeIndex);
 
         while (true)
         {
-            if (index == 0)
+            if (keyframeIndex == 0)
             {
                 // The index points to the first keyframe.
                 break;
             }
 
-            if (getTime(index - 1) != time)
+            if (getTime(keyframeIndex - 1) != time)
             {
                 // The time of the previous keyframe is different.
                 break;
             }
 
-            --index;
+            --keyframeIndex;
         }
 
-        return index;
+        return keyframeIndex;
     }
 
 
-    private int findLastAtSameTime(int index)
+    private int findLastAtSameTime(int keyframeIndex)
     {
-        int time = getTime(index);
+        int time = getTime(keyframeIndex);
 
         while (true)
         {
-            if (index + 1 == keyframeCount)
+            if (keyframeIndex + 1 == keyframeCount)
             {
                 // The index points to the last keyframe.
                 break;
             }
 
-            if (getTime(index + 1) != time)
+            if (getTime(keyframeIndex + 1) != time)
             {
                 // The time of the next keyframe is different.
                 break;
             }
 
-            ++index;
+            ++keyframeIndex;
         }
 
-        return index;
+        return keyframeIndex;
     }
 }

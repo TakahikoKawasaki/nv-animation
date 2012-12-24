@@ -16,6 +16,9 @@
 package com.neovisionaries.animation;
 
 
+import com.neovisionaries.animation.interpolator.Interpolator;
+
+
 /**
  * Animatable.
  *
@@ -37,7 +40,7 @@ public interface Animatable
      *         Time relative to the starting point of the associated
      *         animation. In a typical case, {@code time} is
      *         sequence time that {@link KeyframeSequence#getValueAt(int,
-     *         float[])} can accept.
+     *         Interpolator, float[])} can accept.
      *
      * @return
      *         True if any change has been made.

@@ -30,7 +30,6 @@ public class KeyframeSequenceTest
     private static KeyframeSequence createKS1()
     {
         return new KeyframeSequenceBuilder(1)
-            .interpolator(LINEAR_INTERPOLATOR)
             .keyframe(0, 0.0f)
             .keyframe(8, 64.0f)
             .duration(8)
@@ -41,7 +40,6 @@ public class KeyframeSequenceTest
     private static KeyframeSequence createKS2()
     {
         return new KeyframeSequenceBuilder(1)
-            .interpolator(LINEAR_INTERPOLATOR)
             .keyframe(0, 0.0f)
             .keyframe(8, 64.0f)
             .duration(12)
@@ -54,7 +52,7 @@ public class KeyframeSequenceTest
     {
         float[] output = new float[1];
 
-        ks.getValueAt(time, output);
+        ks.getValueAt(time, LINEAR_INTERPOLATOR, output);
 
         assertEquals(expected, output[0], 0.0001f);
     }

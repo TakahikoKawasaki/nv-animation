@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import com.neovisionaries.animation.interpolator.Interpolator;
 
 
 /**
@@ -42,7 +41,6 @@ public class KeyframeSequenceBuilder
     private final SortedMap<Integer, List<float[]>> keyframeMap = new TreeMap<Integer, List<float[]>>();
     private int keyframeCount;
     private int componentCount;
-    private Interpolator interpolator;
     private int duration;
     private boolean repeated;
 
@@ -237,25 +235,6 @@ public class KeyframeSequenceBuilder
 
 
     /**
-     * Set an interpolator.
-     *
-     * @param interpolator
-     *
-     * @return
-     *         {@code this} object.
-     *
-     * @see KeyframeSequence#KeyframeSequence(int, int, Interpolator)
-     * @see KeyframeSequence#setInterpolator(Interpolator)
-     */
-    public final KeyframeSequenceBuilder interpolator(Interpolator interpolator)
-    {
-        this.interpolator = interpolator;
-
-        return this;
-    }
-
-
-    /**
      * Set duration.
      *
      * @param duration
@@ -319,7 +298,7 @@ public class KeyframeSequenceBuilder
             throw new IllegalStateException("No keyframe");
         }
 
-        KeyframeSequence ks = new KeyframeSequence(keyframeCount, componentCount, interpolator);
+        KeyframeSequence ks = new KeyframeSequence(keyframeCount, componentCount);
 
         // If valid duration has been given to this builder.
         if (0 < duration)
